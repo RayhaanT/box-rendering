@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "src/*.cpp",
+                "src/*.c",
+                "-static",
+                "-Iinclude",
+                "-iquote include",
+                "-Llib",
+                "-lopengl32",
+                "-lglfw3",
+                "-lgdi32",
+                "-o",
+                "render",
+                "-v"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated" 
+            }
+        }
+    ]
+}
