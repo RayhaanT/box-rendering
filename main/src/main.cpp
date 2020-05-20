@@ -32,7 +32,7 @@
 ///Depth buffer must also be cleared in the clear function
 
 #define NUMBER_OF_LAYERS 6
-#define MIN_STEP 0.001f
+#define MIN_STEP 0.0f
 #define STEP_STEP 0.02f
 #define SCROLL_MULTIPLIER 2
 
@@ -42,13 +42,19 @@ bool restrictY = true;
 
 float step = MIN_STEP;
 
+const std::string filenames[] = {"front", "back", "top", "bottom", "right", "left"};
+
 struct Layer {
 	unsigned int texture;
 	glm::vec3 position;
-	glm::vec3 offset;
+	float offset;
+	unsigned int vao;
+	unsigned int vbo;
 
-	Layer(unsigned int _texture) {
+	Layer(unsigned int _texture, unsigned int _vao, unsigned int _vbo) {
 		texture = _texture;
+		vao = _vao;
+		vbo = _vbo;
 	}
 
 	Layer() {}
@@ -184,19 +190,8 @@ int main()
 	// Create a GLFW Window
 
 	// Regular small window
-	GLFWwindow  *window = glfwCreateWindow(W, H, "Exploded Rendering", NULL, NULL);
+	GLFWwindow  *window = glfwCreateWindow(W, H, "Box", NULL, NULL);
 	glfwMakeContextCurrent(window);
-
-	// Borderless fulscreen window
-	// const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	// glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-	// glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-	// glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-	// glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-	// W = mode->width;
-	// H = mode->height;
-	// GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "Exploded Rendering", glfwGetPrimaryMonitor(), NULL);
-	// glfwMakeContextCurrent(window);
 
 	//glad init: intializes all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -220,6 +215,7 @@ int main()
 		-0.9f,  1.2f, -0.0f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 		-0.9f, -1.2f, -0.0f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
 	};
+
 	//Create a Vertex Array Object
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -233,11 +229,89 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	//Configure vertex data so readable by vertex shader
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	float frontVertices[] = {
+		 //Positions             //Normals             //Texture coords
+		-1.55f, -2.2f, -0.0f,    0.0f, 0.0f, -1.0f,    0.0f, 1.0f,
+		 1.55f, -2.2f, -0.0f,    0.0f, 0.0f, -1.0f,    1.0f, 1.0f,
+		 1.55f,  2.2f, -0.0f,    0.0f, 0.0f, -1.0f,    1.0f, 0.0f,
+		 1.55f,  2.2f, -0.0f,    0.0f, 0.0f, -1.0f,    1.0f, 0.0f,
+		-1.55f,  2.2f, -0.0f,    0.0f, 0.0f, -1.0f,    0.0f, 0.0f,
+		-1.55f, -2.2f, -0.0f,    0.0f, 0.0f, -1.0f,    0.0f, 1.0f
+	};
+
+	unsigned int frontVAO;
+	glGenVertexArrays(1, &frontVAO);
+	glBindVertexArray(frontVAO);
+
+	unsigned int frontVBO;
+	glGenBuffers(1, &frontVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, frontVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(frontVertices), frontVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	float topVertices[] = {
+		 //Positions             //Normals             //Texture coords
+		-1.55f,  0.0f, -0.4f,    0.0f, 1.0f, 0.0f,     0.0f, 1.0f,
+		 1.55f,  0.0f, -0.4f,    0.0f, 1.0f, 0.0f,     1.0f, 1.0f,
+		 1.55f,  0.0f,  0.4f,    0.0f, 1.0f, 0.0f,     1.0f, 0.0f,
+		 1.55f,  0.0f,  0.4f,    0.0f, 1.0f, 0.0f,     1.0f, 0.0f,
+		-1.55f,  0.0f,  0.4f,    0.0f, 1.0f, 0.0f,     0.0f, 0.0f,
+		-1.55f,  0.0f, -0.4f,    0.0f, 1.0f, 0.0f,     0.0f, 1.0f
+	};
+
+	unsigned int topVAO;
+	glGenVertexArrays(1, &topVAO);
+	glBindVertexArray(topVAO);
+
+	unsigned int topVBO;
+	glGenBuffers(1, &topVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, topVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(topVertices), topVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	float sideVertices[] = {
+		 //Positions             //Normals             //Texture coords
+		0.0f, -2.2f, -0.4f,     1.0f, 0.0f, 0.0f,     0.0f, 0.0f,
+		0.0f,  2.2f, -0.4f,     1.0f, 0.0f, 0.0f,     0.0f, 1.0f,
+		0.0f,  2.2f,  0.4f,     1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
+		0.0f,  2.2f,  0.4f,     1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
+		0.0f, -2.2f,  0.4f,     1.0f, 0.0f, 0.0f,     1.0f, 0.0f,
+		0.0f, -2.2f, -0.4f,     1.0f, 0.0f, 0.0f,     0.0f, 0.0f
+	};
+
+	unsigned int sideVAO;
+	glGenVertexArrays(1, &sideVAO);
+	glBindVertexArray(sideVAO);
+
+	unsigned int sideVBO;
+	glGenBuffers(1, &sideVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, sideVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sideVertices), sideVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	unsigned int lightingShader = 0;
@@ -251,18 +325,31 @@ int main()
 	setVec3(lightingShader, "light.specular", glm::vec3(0.0, 0.0, 0.0));
 
 	//std::string temp1 = "D:/Libraries/Libraries/GitHub/layered-image-rendering/main/images/layer";
-	std::string temp1 = "images/layer";
+	std::string temp1 = "images/";
 	std::string temp2 = ".png";
-	std::vector<Layer> layers;
+	std::vector<Layer> textures;
 	glActiveTexture(GL_TEXTURE0);
 	// Load layer textures
 	for(int i = 0; i < NUMBER_OF_LAYERS; i++) {
-		std::string numStr = std::to_string(i);
-		std::string path = temp1 + numStr + temp2;
+		std::string path = temp1 + filenames[i] + temp2;
 		unsigned int newTexture;
 		std::cout << "Loading " << path.c_str() << std::endl;
 		loadTexture(newTexture, path.c_str());
-		layers.push_back(Layer(newTexture));
+		unsigned int newVAO;
+		unsigned int newVBO;
+		if(i < 2) {
+			newVAO = frontVAO;
+			newVBO = frontVBO;
+		}
+		else if (i < 4) {
+			newVAO = topVAO;
+			newVBO = topVBO;
+		}
+		else {
+			newVAO = sideVAO;
+			newVBO = sideVBO;
+		}
+		textures.push_back(Layer(newTexture, newVAO, newVBO));
 	}
 
 	glfwSetKeyCallback(window, key_callback);
@@ -310,24 +397,51 @@ int main()
 		setVec3(lightingShader, "lightPos", glm::vec3(glm::vec3(sin((float)(glfwGetTime())), 0.0f, cos((float)(glfwGetTime())))));
 		//setVec3(lightingShader, "lightPos", lightPos);
 
-		std::vector<Layer> sortedLayers = layers;
-		//Sort layers
+		std::vector<Layer> sortedLayers = textures;
+		//Sort textures
 		for(int i = 0; i < NUMBER_OF_LAYERS; i++) {
 			int shiftedI = i - NUMBER_OF_LAYERS / 2;
-			glm::vec3 pos = glm::vec3(0.0f, 0.0f, step * shiftedI);
+			float pos = 1.0f * step;
 			sortedLayers[i].offset = pos;
-			pos = glm::vec3(glm::vec4(pos, 0.0f) * rotationModel);
-			sortedLayers[i].position = pos;
+			//pos = glm::vec3(glm::vec4(pos, 0.0f) * rotationModel);
+			sortedLayers[i].position = glm::vec3(0.0f);
 		}
-		std::sort(sortedLayers.begin(), sortedLayers.end(), sortLayers);
+		//std::sort(sortedLayers.begin(), sortedLayers.end(), sortLayers);
 
 		for(int i = 0; i < NUMBER_OF_LAYERS; i++) {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glActiveTexture(GL_TEXTURE0);
 			model = glm::mat4();
+			glBindVertexArray(sortedLayers[i].vao);
 			glBindTexture(GL_TEXTURE_2D, sortedLayers[i].texture);
-			int shiftedI = i - NUMBER_OF_LAYERS/2;
-			glm::vec3 v = sortedLayers[i].offset;
+			glBindBuffer(GL_ARRAY_BUFFER, sortedLayers[i].vbo);
+
+			glm::vec3 v;
+			//Front
+			if(i == 0) {
+				v = glm::vec3(0.0f, 0.0f, 0.4f + sortedLayers[i].offset);
+			}
+			//Back
+			if(i == 1) {
+				v = glm::vec3(0.0f, 0.0f, -0.4f - sortedLayers[i].offset);
+			}
+			//Top
+			if(i == 2) {
+				v = glm::vec3(0.0f, 2.2f + sortedLayers[i].offset, 0.0f);
+			}
+			//Bottom
+			if(i == 3) {
+				v = glm::vec3(0.0f, -2.2f - sortedLayers[i].offset, 0.0f);
+			}
+			//Right
+			if(i == 4) {
+				v = glm::vec3(1.55f + sortedLayers[i].offset, 0.0f, 0.0f);
+			}
+			//Left
+			if(i == 5) {
+				v = glm::vec3(-1.55f - sortedLayers[i].offset, 0.0f, 0.0f);
+			}
+
 			model = glm::translate(model, v);
 			model = rotationModel * model;
 			setMat4(lightingShader, "model", model);
