@@ -444,6 +444,15 @@ int main()
 
 			model = glm::translate(model, v);
 			model = rotationModel * model;
+			if(i == 1) {
+				model = glm::rotate(model, PI, glm::vec3(0.0f, 1.0f, 0.0f));
+			}
+			if(i == 2) {
+				model = glm::rotate(model, PI, glm::vec3(1.0f, 0.0f, 0.0f));
+			}
+			if(i == 5) {
+				model = glm::rotate(model, PI, glm::vec3(0.0f, 1.0f, 0.0f));
+			}
 			setMat4(lightingShader, "model", model);
 			//Draw layer
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
