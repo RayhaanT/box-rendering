@@ -65,7 +65,7 @@ float lastX = W / 2; float lastY = H / 2;
 float yaw = -90; float pitch = 0;
 bool firstMouse = true;
 float fov = 45.0f;
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(0.0f, 0.0f, -20.0f);
 
 bool blackBackground = true;
 bool rHeld = false;
@@ -290,12 +290,12 @@ int main()
 
 	float sideVertices[] = {
 		 //Positions             //Normals             //Texture coords
-		0.0f, -2.2f, -0.4f,     1.0f, 0.0f, 0.0f,     0.0f, 0.0f,
-		0.0f,  2.2f, -0.4f,     1.0f, 0.0f, 0.0f,     0.0f, 1.0f,
-		0.0f,  2.2f,  0.4f,     1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
-		0.0f,  2.2f,  0.4f,     1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
-		0.0f, -2.2f,  0.4f,     1.0f, 0.0f, 0.0f,     1.0f, 0.0f,
-		0.0f, -2.2f, -0.4f,     1.0f, 0.0f, 0.0f,     0.0f, 0.0f
+		0.0f, -2.2f, -0.4f,     -1.0f, 0.0f, 0.0f,     0.0f, 0.0f,
+		0.0f,  2.2f, -0.4f,     -1.0f, 0.0f, 0.0f,     0.0f, 1.0f,
+		0.0f,  2.2f,  0.4f,     -1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
+		0.0f,  2.2f,  0.4f,     -1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
+		0.0f, -2.2f,  0.4f,     -1.0f, 0.0f, 0.0f,     1.0f, 0.0f,
+		0.0f, -2.2f, -0.4f,     -1.0f, 0.0f, 0.0f,     0.0f, 0.0f
 	};
 
 	unsigned int sideVAO;
@@ -320,9 +320,10 @@ int main()
 	setInt(lightingShader, "material.diffuse", 0);
 	setInt(lightingShader, "material.specular", 1);
 	setFloat(lightingShader, "material.shininess", 32.0f);
-	setVec3(lightingShader, "light.ambient", glm::vec3(1.0, 1.0, 1.0));
-	setVec3(lightingShader, "light.diffuse", glm::vec3(0.0, 0.0, 0.0));
+	setVec3(lightingShader, "light.ambient", glm::vec3(0.5, 0.5, 0.5));
+	setVec3(lightingShader, "light.diffuse", glm::vec3(0.4, 0.4, 0.4));
 	setVec3(lightingShader, "light.specular", glm::vec3(0.0, 0.0, 0.0));
+	setVec3(lightingShader, "lightPos", lightPos);
 
 	//std::string temp1 = "D:/Libraries/Libraries/GitHub/layered-image-rendering/main/images/layer";
 	std::string temp1 = "images/";
@@ -394,7 +395,6 @@ int main()
 		//Pass our matrices to the shader through a uniform
 		setMat4(lightingShader, "view", view);
 		setMat4(lightingShader, "projection", projection);
-		setVec3(lightingShader, "lightPos", glm::vec3(glm::vec3(sin((float)(glfwGetTime())), 0.0f, cos((float)(glfwGetTime())))));
 		//setVec3(lightingShader, "lightPos", lightPos);
 
 		std::vector<Layer> sortedLayers = textures;
