@@ -33,7 +33,7 @@
 
 #define NUMBER_OF_LAYERS 6
 #define MIN_STEP 0.0f
-#define STEP_STEP 0.02f
+#define STEP_STEP 0.04f
 #define SCROLL_MULTIPLIER 2
 
 float deltaTime = 0.0f;
@@ -320,8 +320,8 @@ int main()
 	setInt(lightingShader, "material.diffuse", 0);
 	setInt(lightingShader, "material.specular", 1);
 	setFloat(lightingShader, "material.shininess", 32.0f);
-	setVec3(lightingShader, "light.ambient", glm::vec3(0.5, 0.5, 0.5));
-	setVec3(lightingShader, "light.diffuse", glm::vec3(0.4, 0.4, 0.4));
+	setVec3(lightingShader, "light.ambient", glm::vec3(0.4, 0.4, 0.4));
+	setVec3(lightingShader, "light.diffuse", glm::vec3(0.6, 0.6, 0.6));
 	setVec3(lightingShader, "light.specular", glm::vec3(0.0, 0.0, 0.0));
 	setVec3(lightingShader, "lightPos", lightPos);
 
